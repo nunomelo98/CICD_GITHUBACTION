@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextstop
+  namespace: nuno
+  labels:
+    app: nextstopapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextstopapi
+  template:
+    metadata:
+      labels:
+        app: nextstopapi
+    spec:
+      containers:
+        - name: nextstopapi
+          image: nunomelo/${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+          ports:
+            - containerPort: 80
+          env:
+            - name: MYSQL_USERNAME
+              value: root
+            - name: MYSQL_PASSWORD
+              value: secret
+            - name: MYSQL_HOST
+              value: nextstopbd
+            - name: MYSQL_DATABASE
+              value: autocarro  
+              
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nextstop
+  namespace: nuno
+spec:
+  selector:
+    app: nextstopapi
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+#   env:
+#       MYSQL_USERNAME: root
+#       MYSQL_PASSWORD: secret
+#       MYSQL_HOST: nextstopbd
+#       MYSQL_DATABASE: autocarro
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   namespace: landim
+#   name: thiago-blog-ingress
+#   annotations:
+#     allow.http: "false"
+# spec:
+#   rules:
+#   - host: nosi.cv
+#     http:
+#       paths:
+#         - path: /
+#           backend:
+#             serviceName: thiago-blog-service
+#             servicePort: 80

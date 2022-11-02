@@ -1,0 +1,138 @@
+image: docker:latest
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+variables:
+  CONTAINER_IMAGE: nunomelo/nextstop:${CI_COMMIT_SHORT_SHA}
+
+build:
+  stage: build
+  script:
+    - docker login -u nunomelo -p 3311614@@Estudo
+    - docker build -t ${CONTAINER_IMAGE} .
+    - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE}
+    - docker tag ${CONTAINER_IMAGE} nunomelo/nextstop:latest
+    - docker push ${CONTAINER_IMAGE}
+
+deploy:
+  stage: deploy
+  script:
+    - sed -i ./deployment.yaml
+    - kubectl apply -f deployment.yaml
+#     steps:
+#     - applyYamlConfig:
+#         path: ./deployment.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# variables:
+#   CONTAINER_IMAGE: nunomelo/nextstop:${CI_COMMIT_SHORT_SHA}
+
+# stages:
+# - name: Build
+#   steps:
+#   - runScriptConfig:
+#       image: php:7.4-apache 
+#       shellScript: |-
+#         apt-get update
+#         apt-get install -y --no-install-recommends
+#         docker-php-ext-install pdo_mysql
+#         docker-php-ext-install mysqli
+#       script:
+#         - docker login -u nunomelo -p 3311614@@Estudo
+# #         //- docker build -t ${CONTAINER_IMAGE} .
+# #         - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE}
+# #         - docker tag ${CONTAINER_IMAGE} nunomelo/nextstop:latest
+# #         - docker push ${CONTAINER_IMAGE}
+
+       
+      
+# - name: Publish
+#   steps:
+#   - publishImageConfig:
+#       dockerfilePath: ./Dockerfile
+#       buildContext: ${CONTAINER_IMAGE} .
+#       tag: ${CONTAINER_IMAGE} nunomelo/nextstop:latest
+# - name: Deploy
+#   steps:
+#   - applyYamlConfig:
+#       path: ./deployment.yaml
+ 
+# stages:
+# - name: Build
+#   steps:
+#   - runScriptConfig:
+#       image: nextstop:1.11 
+# - name: Publish
+#   steps:
+#   - publishImageConfig:
+#       dockerfilePath: ./Dockerfile
+#       buildContext: .
+#       tag: nextstop:${CICD_EXECUTION_SEQUENCE}
+# - name: Deploy
+#   steps:
+#   - applyYamlConfig:
+#       path: ./deployment.yaml
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: nextstopapi
+#   template:
+#     metadata:
+#       labels:
+#         app: nextstopapi
+#     spec:
+#       imagePullSecrets:
+#       - name: pipeline-docker-registry
+#       containers:
+#       - name: nextstopapi
+#         image: nextstop:${CICD_EXECUTION_SEQUENCE}
+#         ports:
+#         - containerPort: 80
+
+# ---
+# kind: Service
+# apiVersion: v1
+# metadata:
+#   name: nextstop
+#   namespace: nuno
+# spec:
+#   selector:
+#     app: nextstopapi
+#   type: NodePort
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 80
+#   environment:
+#       MYSQL_USERNAME: root
+#       MYSQL_PASSWORD: secret
+#       MYSQL_HOST: nextstopbd
+#       MYSQL_DATABASE: autocarro
